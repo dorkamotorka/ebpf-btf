@@ -2,6 +2,7 @@
 
 # disable builtin rules (avoid trying to run cc for .o files)
 MAKEFLAGS += --no-builtin-rules
+BPFTOOL ?= bpftool
 
 ifndef BTFHUB_ARCHIVE
 $(error BTFHUB_ARCHIVE is undefined)

@@ -1,4 +1,4 @@
-BTFHUB_ARCHIVE ?= $(HOME)/btfhub
+BTFHUB_ARCHIVE ?= $(HOME)/btfhub-archive
 ARCH ?= $(shell uname -m | sed 's/x86_64/x86/' | sed 's/aarch64/arm64/' | sed 's/ppc64le/powerpc/' | sed 's/mips.*/mips/')
 OUTPUT ?= btfs
 EBPF_SRC ?= $(wildcard *.c)  # eBPF source files (modify pattern as needed)
