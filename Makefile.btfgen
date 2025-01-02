@@ -22,9 +22,7 @@ OUTPUT ?= btfs
 
 SOURCE_BTF_FILES = $(shell find $(BTFHUB_ARCHIVE)/ -iregex ".*$(subst x86,x86_64,$(ARCH_CLEANED)).*" -type f -name '*.btf.tar.xz')
 MIN_CORE_BTF_FILES = $(patsubst $(BTFHUB_ARCHIVE)/%.btf.tar.xz, $(OUTPUT)/$(ARCH_CLEANED)/%.btf, $(SOURCE_BTF_FILES))
-BPF_ALL_O_FILES = $(shell find pkg/ -type f -regex ".*\($(ARCH_CLEANED)\|bpfel\).o")
-# Filter out BPF objects that only contain BPF maps without BPF programs
-BPF_PROGS_O_FILES = $(filter-out pkg/gadgettracermanager/containers-map/containersmap_bpfel%,$(BPF_ALL_O_FILES))
+BPF_ALL_O_FILES = $(shell find . -maxdepth 1 -type f -regex ".*\($(ARCH_CLEANED)\|bpfel\).o")
 
 .PHONY: all
 all: $(MIN_CORE_BTF_FILES)
@@ -46,7 +44,7 @@ $(OUTPUT)/$(ARCH_CLEANED)/%.btf: $(BTFHUB_ARCHIVE)/%.btf.tar.xz
 	$(Q)tar xvfJ $< -C "$(dir $<)" --touch > /dev/null
 	$(call msg,BTFGEN,$@)
 	$(Q)mkdir -p "$(@D)"
-	$(Q)if [ -f $(BTF_FILE) ]; then $(BPFTOOL) gen min_core_btf $(BTF_FILE) $@ $(BPF_PROGS_O_FILES); else echo "$(BTF_FILE) does not exist!" >&2; fi
+	$(Q)if [ -f $(BTF_FILE) ]; then $(BPFTOOL) gen min_core_btf $(BTF_FILE) $@ $(BPF_ALL_O_FILES); else echo "$(BTF_FILE) does not exist!" >&2; fi
 	$(Q)rm -fr $(BTF_FILE)
 
 # delete failed targets
