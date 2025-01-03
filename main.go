@@ -11,27 +11,24 @@ import (
 )
 
 func main() {
-	// Open the eBPF object file (compiled .o file)
-	bpfFile := "example_bpfel.o"
-	prog, err := ebpf.LoadCollection(bpfFile)
-	if err != nil {
-		log.Fatalf("Failed to load BPF program: %v", err)
-	}
-	defer prog.Close()
-
-	// Find the tracepoint program inside the loaded collection
-	tracepointProg, ok := prog.Programs["tracepoint_program"]
-	if !ok {
-		log.Fatalf("tracepoint program not found in the collection")
+	opts := ebpf.CollectionOptions{
+		Programs: ebpf.ProgramOptions{
+			KernelTypes: GetBTFSpec(),
+		},
 	}
 
-	// Attach the BPF program to the tracepoint
-	// Example tracepoint: syscalls/sys_enter_execve
-	tracepoint, err := link.Tracepoint("syscalls", "sys_enter_execve", tracepointProg, nil)
-	if err != nil {
-		log.Fatalf("Failed to attach to tracepoint: %v", err)
+	var objs exampleObjects
+	if err := loadExampleObjects(&objs, &opts); err != nil {
+		log.Fatal("Loading eBPF objects:", err)
 	}
-	defer tracepoint.Close()
+	defer objs.Close()
+
+	// Attach Tracepoint
+	tp, err := link.Tracepoint("syscalls", "sys_enter_execve", objs.TracepointProgram, nil)
+	if err != nil {
+		log.Fatalf("Attaching Tracepoint: %s", err)
+	}
+	defer tp.Close()
 
 	fmt.Println("eBPF program attached to tracepoint. Press Ctrl+C to exit.")
 

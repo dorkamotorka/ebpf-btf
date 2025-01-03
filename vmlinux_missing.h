@@ -3,8 +3,6 @@
 
 // NOTE: vmlinux.h contains kernel BTF types but not macros (put it here)
 
-#include <vmlinux.h>
-
 #define ULLONG_MAX (~0ULL)
 
 #define inet_daddr     sk.__sk_common.skc_daddr
@@ -83,18 +81,6 @@
 #define _IOC_TYPECHECK(t)      (sizeof(t))
 #define _IOW(type, nr, size)   _IOC(_IOC_WRITE, (type), (nr), (_IOC_TYPECHECK(size)))
 #define PERF_EVENT_IOC_SET_BPF _IOW('$', 8, __u32)
-
-enum perf_type_id
-{
-    PERF_TYPE_HARDWARE = 0,
-    PERF_TYPE_SOFTWARE = 1,
-    PERF_TYPE_TRACEPOINT = 2,
-    PERF_TYPE_HW_CACHE = 3,
-    PERF_TYPE_RAW = 4,
-    PERF_TYPE_BREAKPOINT = 5,
-
-    PERF_TYPE_MAX, /* non-ABI */
-};
 
 /*=============================== ARCH SPECIFIC ===========================*/
 #if defined(__TARGET_ARCH_x86)

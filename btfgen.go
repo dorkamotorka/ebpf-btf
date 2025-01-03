@@ -44,6 +44,7 @@ func initialize() error {
 	// If the kernel exposes BTF; nothing to do
 	_, err := btf.LoadKernelSpec()
 	if err == nil {
+		fmt.Println("Kernel already exposes BTF, so nothing to do..")
 		return nil
 	}
 
