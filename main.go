@@ -20,6 +20,7 @@ func main() {
 
         opts := ebpf.CollectionOptions{
                 Programs: ebpf.ProgramOptions{
+			// This is where the BTF Spec is loaded
                         KernelTypes: GetBTFSpec(),
                 },
         }

@@ -14,7 +14,7 @@ int tracepoint_program(struct trace_event_raw_sys_enter *ctx) {
     u8 filename[ARGSIZE];
     bpf_core_read_user_str(&filename, sizeof(filename), filename_ptr);
 
-    bpf_printk("Tracepoint (CO-RE) triggered for execve syscall with parameter filename: %s\n", filename);
+    //bpf_printk("Tracepoint (CO-RE) triggered for execve syscall with parameter filename: %s\n", filename);
     return 0;
 }
 

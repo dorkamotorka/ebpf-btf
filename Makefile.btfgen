@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: (LGPL-2.1 OR BSD-2-Clause)
 
+# Tool used to generate minimal BTFs (can be overridden)
 BPFTOOL ?= bpftool
 
 ifndef BTFHUB_ARCHIVE
@@ -10,22 +11,31 @@ ifndef ARCH
 $(error ARCH is undefined)
 endif
 
-# architecture naming is a mess:
-# - Golang uses amd64 and arm64
-# - btfhub uses x86_64 and arm64
-# - bpf2go uses x86 and arm64
+# Architecture naming is inconsistent across tools:
+# - Golang uses: amd64, arm64
+# - btfhub uses: x86_64, arm64
+# - bpf2go uses: x86, arm64
+# Normalize ARCH to match bpf2go's naming convention
 ARCH_CLEANED = $(subst amd64,x86,$(ARCH))
 
-# Output directory for BTF files
+
+# Output directory where generated minimal BTFs will be placed
 OUTPUT ?= btfs
 
+# Find all relevant .btf.tar.xz files in BTFHub archive that match the architecture
 SOURCE_BTF_FILES = $(shell find $(BTFHUB_ARCHIVE)/ -iregex ".*$(subst x86,x86_64,$(ARCH_CLEANED)).*" -type f -name '*.btf.tar.xz')
+
+# Map each source BTF file to its expected minimal BTF output path
 MIN_CORE_BTF_FILES = $(patsubst $(BTFHUB_ARCHIVE)/%.btf.tar.xz, $(OUTPUT)/$(ARCH_CLEANED)/%.btf, $(SOURCE_BTF_FILES))
+
+# Find all .o files in the current directory that match the architecture or are bpfel objects
 BPF_ALL_O_FILES = $(shell find . -maxdepth 1 -type f -regex ".*\($(ARCH_CLEANED)\|bpfel\).o")
 
+# Default target: generate all minimal BTF files
 .PHONY: all
 all: $(MIN_CORE_BTF_FILES)
 
+# Verbose/non-verbose command execution
 ifeq ($(V),1)
 Q =
 msg =
@@ -36,6 +46,9 @@ endif
 
 $(MIN_CORE_BTF_FILES): $(BPF_PROGS_O_FILES)
 
+# Rule to generate a minimal BTF file from a .btf.tar.xz archive
+# Unpacks the archive, runs bpftool to generate the minimal BTF,
+# and then deletes the extracted full BTF file
 $(OUTPUT)/$(ARCH_CLEANED)/%.btf: BTF_FILE = $(<:.tar.xz=)
 $(OUTPUT)/$(ARCH_CLEANED)/%.btf: $(BTFHUB_ARCHIVE)/%.btf.tar.xz
 	$(call msg,UNTAR,$@)
@@ -45,8 +58,8 @@ $(OUTPUT)/$(ARCH_CLEANED)/%.btf: $(BTFHUB_ARCHIVE)/%.btf.tar.xz
 	$(Q)if [ -f $(BTF_FILE) ]; then $(BPFTOOL) gen min_core_btf $(BTF_FILE) $@ $(BPF_ALL_O_FILES); else echo "$(BTF_FILE) does not exist!" >&2; fi
 	$(Q)rm -fr $(BTF_FILE)
 
-# delete failed targets
+# Delete partial targets if a rule fails
 .DELETE_ON_ERROR:
 
-# keep intermediate (.skel.h, .bpf.o, etc) targets
+# Keep intermediate files (.skel.h, .bpf.o, etc.)
 .SECONDARY:
