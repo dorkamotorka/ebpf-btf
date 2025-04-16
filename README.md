@@ -7,6 +7,13 @@ It includes `Makefile` scripts to:
 - generate minimal BTF files based on the skeleton code
 - builds the final program binary that can run also on kernel versions that aren't compiled with BTF support
 
+## Requirements
+
+- [bpftool](https://github.com/libbpf/bpftool)
+- Access to the [btfhub-archive repository](https://github.com/aquasecurity/btfhub-archive), which should be cloned locally.
+- [eBPF Dependencies](https://ebpf-go.dev/guides/getting-started/#ebpf-c-program)
+- Go installed on your system
+
 ## Features
 
 - **Minimal BTF Generation:** Automated creation of minimal BTF files tailored for specific architectures.
