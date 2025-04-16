@@ -1,0 +1,73 @@
+# Change cpu/memory if required
+cpus: 4
+memory: "10GiB"
+
+# Check also: https://lima-vm.io/docs/config/multi-arch/
+arch: "x86_64"
+
+images:
+  - location: "https://cloud-images.ubuntu.com/releases/18.04/release/ubuntu-18.04-server-cloudimg-amd64.img"
+    arch: "x86_64"
+  - location: "https://cloud-images.ubuntu.com/releases/24.04/release/ubuntu-24.04-server-cloudimg-arm64.img"
+    arch: "aarch64"
+
+# Mounts the home directory (~) and /tmp/lima (writable)
+mounts:
+  - location: "~"
+    writable: true
+  - location: "/tmp/lima"
+    writable: true
+
+provision:
+  # Installs eBPF dependencies
+  - mode: system
+    script: |
+      #!/bin/bash
+      set -eux -o pipefail
+      apt-get update -y
+      apt-get install -y apt-transport-https ca-certificates curl clang llvm jq
+      apt-get install -y linux-tools-common linux-tools-$(uname -r)
+      apt-get install -y libelf-dev libcap-dev libpcap-dev libbfd-dev binutils-dev build-essential make
+      apt-get install -y bpfcc-tools
+      apt-get install -y python3-pip
+
+  # Debug Symbols for eBPF Tools
+  - mode: system
+    script: |
+      #!/bin/bash
+      apt-get install -y ubuntu-dbgsym-keyring
+      echo "deb http://ddebs.ubuntu.com $(lsb_release -cs) main restricted universe multiverse
+      deb http://ddebs.ubuntu.com $(lsb_release -cs)-updates main restricted universe multiverse
+      deb http://ddebs.ubuntu.com $(lsb_release -cs)-proposed main restricted universe multiverse" | \
+      tee -a /etc/apt/sources.list.d/ddebs.list
+      apt-get install -y ubuntu-dbgsym-keyring
+      apt-get update -y
+      apt-get install -y bpftrace-dbgsym
+
+  - mode: system
+    script: |
+      #!/bin/bash
+      set -eux -o pipefail
+      apt-get install -y libbpf-dev
+      ln -sf /usr/include/$(uname -m)-linux-gnu/asm /usr/include/asm
+
+  # bpftool installation
+  - mode: system
+    script: |
+      #!/bin/bash
+      set -eux -o pipefail
+      ln -sf /usr/lib/$(uname -m)-linux-gnu/libbfd.so /usr/lib/libbfd.so
+   
+      git clone --recurse-submodules https://github.com/libbpf/bpftool.git
+      cd bpftool
+      git submodule update --init
+      cd src
+      make install
+
+  # Golang installation
+  - mode: system
+    script: |
+      #!/bin/bash
+      add-apt-repository ppa:longsleep/golang-backports
+      apt-get update -y
+      apt-get install -y golang-go
