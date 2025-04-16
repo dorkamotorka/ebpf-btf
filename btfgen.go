@@ -29,10 +29,7 @@ import (
 	"sync"
 
 	"github.com/cilium/ebpf/btf"
-	log "github.com/sirupsen/logrus"
 	"golang.org/x/sys/unix"
-
-	"github.com/inspektor-gadget/inspektor-gadget/pkg/utils/host"
 )
 
 var (
@@ -62,9 +59,11 @@ func initialize() error {
 		goarch = "x86"
 	}
 
+	// Get path to the BTF file
 	btfFile := fmt.Sprintf("btfs/%s/%s/%s/%s/%s.btf",
 		goarch, info.ID, info.VersionID, info.Arch, info.Kernel)
 
+	// Read file from the embedded context of BTF files
 	file, err := btfs.ReadFile(btfFile)
 	if err != nil {
 		return fmt.Errorf("reading %s BTF file %w", btfFile, err)
@@ -85,7 +84,7 @@ func GetBTFSpec() *btf.Spec {
 	once.Do(func() {
 		err := initialize()
 		if err != nil {
-			log.Warnf("Failed to initialize BTF: %v", err)
+			fmt.Errorf("Failed to initialize BTF: %v", err)
 		}
 	})
 	return spec
@@ -100,8 +99,12 @@ type OsInfo struct {
 
 func GetOSInfo() (*OsInfo, error) {
 	osInfo := &OsInfo{}
+	HostRoot := os.Getenv("HOST_ROOT")
+	if HostRoot == "" {
+		HostRoot = "/"
+	}
 
-	file, err := os.Open(filepath.Join(host.HostRoot, "/etc/os-release"))
+	file, err := os.Open(filepath.Join(HostRoot, "/etc/os-release"))
 	if err != nil {
 		return nil, fmt.Errorf("opening file: %w", err)
 	}

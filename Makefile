@@ -6,7 +6,7 @@ EBPF_OBJ ?= $(EBPF_SRC:.c=.o)  # eBPF object files
 
 # Default target
 .PHONY: all
-all: generate btfgen build
+all: generate build
 
 # Compile eBPF programs
 .PHONY: generate
@@ -14,7 +14,7 @@ generate:
 	@echo "Compiling eBPF programs"
 	@go generate
 
-# Invoke Makefile.btfgen
+# Invoke Makefile.btfgen (don't do it by default only if you know your program will run on non-BTF enabled kernels)
 .PHONY: btfgen
 btfgen:
 	@echo "Invoking Makefile.btfgen with BTFHUB_ARCHIVE=$(BTFHUB_ARCHIVE), ARCH=$(ARCH), OUTPUT=$(OUTPUT)"
