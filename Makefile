@@ -16,7 +16,7 @@ EBPF_OBJ ?= $(EBPF_SRC:.c=.o)  # eBPF object files
 
 # Default target that runs both generate and build
 .PHONY: all
-all: generate build
+all: generate btfgen build
 
 # Compile eBPF programs using `go generate`
 .PHONY: generate
