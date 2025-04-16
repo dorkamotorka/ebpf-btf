@@ -1,7 +1,5 @@
 # SPDX-License-Identifier: (LGPL-2.1 OR BSD-2-Clause)
 
-# disable builtin rules (avoid trying to run cc for .o files)
-MAKEFLAGS += --no-builtin-rules
 BPFTOOL ?= bpftool
 
 ifndef BTFHUB_ARCHIVE
@@ -34,7 +32,6 @@ msg =
 else
 Q = @
 msg = @printf '  %-8s %s%s\n' "$(1)" "$(notdir $(2))" "$(if $(3), $(3))";
-MAKEFLAGS += --no-print-directory
 endif
 
 $(MIN_CORE_BTF_FILES): $(BPF_PROGS_O_FILES)
