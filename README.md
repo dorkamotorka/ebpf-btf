@@ -49,3 +49,7 @@ You are now ready to generate minimal BTF files and build the output binary usin
 ```
 make
 ```
+
+## License
+
+Some parts of the code have been inspired by the concepts utilized in the [Inspektor Gadget](https://github.com/inspektor-gadget/inspektor-gadget) which is licensed under the LGPL-2.1 OR BSD-2-Clause license.
