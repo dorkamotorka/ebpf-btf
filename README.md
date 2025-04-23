@@ -2,6 +2,8 @@
 
 This repository provides an example for building CO-RE (Compile-Once-Run-Everywhere) eBPF programs.
 
+![image-tmp (13)](https://github.com/user-attachments/assets/37404be6-f504-4421-90d8-c2bec9fc114d)
+
 In other words - if you're seeing this error:
 ```
 Loading eBPF objects: ...: ...: apply CO-RE relocations: load kernel spec: no BTF found for kernel version x.xx.x-xxx-generic: not supported
