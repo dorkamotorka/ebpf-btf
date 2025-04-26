@@ -12,7 +12,8 @@ you came to the right place.
 
 It includes `Makefile` scripts to:
 - generate skeleton code for eBPF kernel program
-- generate minimal BTF files based on the skeleton code
+- installs BTF files for existing published kernels that don't support embedded BTF and embeeds them into your binary
+- minimizes the installed BTF files based on your eBPF kernel program skeleton code
 - builds the final program binary that can run also on kernel versions that aren't compiled with BTF support
 
 ## Requirements
